@@ -28,9 +28,13 @@ const formSchema = z.object({
 import { Separator } from "../ui/separator";
 import { Textarea } from "../ui/textarea";
 import ImageUpload from "../custom ui/ImageUpload";
+import { useState } from "react";
+import toast from "react-hot-toast";
 
 const CollectionForm = () => {
     const router = useRouter();
+
+    const [loading, setLoading] = useState(false);
 
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -43,8 +47,24 @@ const CollectionForm = () => {
     });
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
+        try {
+          setLoading(true);
+          const res = await fetch("/api/collections",{
+            method: "POST",
+            body: JSON.stringify(values),
+          });
 
-    }
+          if (res.ok) {
+            setLoading(false);
+            toast.success("Collection created succesfully")
+            // window.location.href = "/collections";
+            router.push("/collections");
+          }
+        } catch (err) {
+          console.log("[collections_POST]", err);
+          toast.error("Something went wrong! Please try again...")
+        }
+      };
     
     return (
         <div className="p-10">
